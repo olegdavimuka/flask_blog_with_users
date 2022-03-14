@@ -13,8 +13,9 @@ from forms import RegisterForm, LoginForm, CreatePostForm, CommentForm, EmailFor
 from flask_gravatar import Gravatar
 import os
 
-MY_EMAIL = os.environ.get("MY_EMAIL")
-EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+FROM_EMAIL = os.environ.get("FROM_EMAIL")
+FROM_EMAIL_PASSWORD = os.environ.get("FROM_EMAIL_PASSWORD")
+TO_EMAIL = os.environ.get("TO_EMAIL")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
@@ -100,10 +101,10 @@ db.create_all()
 def send_email(name, email, phone, message):
     with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
         connection.starttls()
-        connection.login(MY_EMAIL, EMAIL_PASSWORD)
+        connection.login(FROM_EMAIL, FROM_EMAIL_PASSWORD)
         connection.sendmail(
-            from_addr=MY_EMAIL,
-            to_addrs=MY_EMAIL,
+            from_addr=FROM_EMAIL,
+            to_addrs=TO_EMAIL,
             msg=f"Subject:New message on Blog-CV!\n\n"
                 f"Name: {name}\n"
                 f"Email Address: {email}\n"
