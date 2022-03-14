@@ -1,3 +1,4 @@
+import smtplib
 from functools import wraps
 from flask import Flask, render_template, redirect, url_for, flash, abort
 from flask_bootstrap import Bootstrap
@@ -8,10 +9,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
-from forms import RegisterForm, LoginForm, CreatePostForm, CommentForm
+from forms import RegisterForm, LoginForm, CreatePostForm, CommentForm, EmailForm
 from flask_gravatar import Gravatar
 import os
-import re
+
+MY_EMAIL = os.environ.get("MY_EMAIL")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
@@ -22,7 +25,6 @@ Bootstrap(app)
 uri = os.environ.get("DATABASE_URL", "sqlite:///blog.db")
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
-# rest of connection code using the connection string `uri`
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -93,6 +95,22 @@ class Comment(db.Model):
 
 
 db.create_all()
+
+
+def send_email(name, email, phone, message):
+    with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
+        connection.starttls()
+        connection.login(MY_EMAIL, EMAIL_PASSWORD)
+        connection.sendmail(
+            from_addr=MY_EMAIL,
+            to_addrs=MY_EMAIL,
+            msg=f"Subject:New message on Blog-CV!\n\n"
+                f"Name: {name}\n"
+                f"Email Address: {email}\n"
+                f"Phone Number: {phone}\n"
+                f"Message: {message}"
+        )
+    pass
 
 
 @app.route('/')
@@ -185,9 +203,23 @@ def about():
     return render_template("about.html", current_user=current_user)
 
 
-@app.route("/contact")
+@app.route("/contact", methods=["GET", "POST"])
 def contact():
-    return render_template("contact.html", current_user=current_user)
+    email_form = EmailForm()
+    if current_user.is_authenticated:
+        email_form = EmailForm(
+            name=current_user.name,
+            email=current_user.email
+        )
+
+    if email_form.validate_on_submit():
+        send_email(name=email_form.name.data,
+                   email=email_form.email.data,
+                   phone=email_form.phone.data,
+                   message=email_form.message.data)
+        flash("Your email was sent. I will contact you as soon as possible.")
+
+    return render_template("contact.html", form=email_form, current_user=current_user)
 
 
 @app.route("/new-post", methods=["GET", "POST"])
@@ -238,6 +270,9 @@ def delete_post(post_id):
     db.session.commit()
     return redirect(url_for('get_all_posts'))
 
+
+# TODO: Add user pages where comments and posts will be seen.
+# TODO: Add a possibility for every user to create, edit and delete own posts.
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

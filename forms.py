@@ -2,10 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, EmailField
 from wtforms.validators import DataRequired, URL, Email
 from flask_ckeditor import CKEditorField
-import email_validator
 
 
-# WTForm
 class CreatePostForm(FlaskForm):
     title = StringField("Blog Post Title", validators=[DataRequired()])
     subtitle = StringField("Subtitle", validators=[DataRequired()])
@@ -30,3 +28,11 @@ class LoginForm(FlaskForm):
 class CommentForm(FlaskForm):
     comment = CKEditorField("Comment", validators=[DataRequired()])
     submit = SubmitField("Submit Post")
+
+
+class EmailForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    email = EmailField("Email Address", validators=[DataRequired(), Email()])
+    phone = StringField("Phone Number", validators=[DataRequired()])  # TODO: phone number validation
+    message = StringField("Message", validators=[DataRequired()])
+    submit = SubmitField("Send")

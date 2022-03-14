@@ -64,6 +64,11 @@ content p {
     color:red;
 }
 
+contentGreen p {
+    font-style: italic;
+    color:green;
+}
+
 ::-moz-selection {
   color: #fff;
   background: #0085A1;
