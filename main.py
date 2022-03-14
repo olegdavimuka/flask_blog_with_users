@@ -1,17 +1,22 @@
+import os
 import smtplib
+from datetime import date
+from email.generator import Generator
+from email.mime.text import MIMEText
 from functools import wraps
+from io import StringIO
+
 from flask import Flask, render_template, redirect, url_for, flash, abort
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
-from datetime import date
-from sqlalchemy import ForeignKey
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import relationship
-from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
-from forms import RegisterForm, LoginForm, CreatePostForm, CommentForm, EmailForm
 from flask_gravatar import Gravatar
-import os
+from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from forms import RegisterForm, LoginForm, CreatePostForm, CommentForm, EmailForm
 
 FROM_EMAIL = os.environ.get("FROM_EMAIL")
 FROM_EMAIL_PASSWORD = os.environ.get("FROM_EMAIL_PASSWORD")
@@ -102,14 +107,20 @@ def send_email(name, email, phone, message):
     with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
         connection.starttls()
         connection.login(FROM_EMAIL, FROM_EMAIL_PASSWORD)
+
+        msg = MIMEText(f"Name: {name}\n"
+                       f"Email Address: {email}\n"
+                       f"Phone Number: {phone}\n"
+                       f"Message: {message}")
+        msg['Subject'] = "Hello! New message on Blog-CV!"
+        str_io = StringIO()
+        g = Generator(str_io, False)
+        g.flatten(msg)
+
         connection.sendmail(
             from_addr=FROM_EMAIL,
             to_addrs=TO_EMAIL,
-            msg=f"Subject:New message on Blog-CV!\n\n"
-                f"Name: {name}\n"
-                f"Email Address: {email}\n"
-                f"Phone Number: {phone}\n"
-                f"Message: {message}"
+            msg=str_io.getvalue()
         )
     pass
 
@@ -219,6 +230,7 @@ def contact():
                    phone=email_form.phone.data,
                    message=email_form.message.data)
         flash("Your email was sent. I will contact you as soon as possible.")
+        return redirect(url_for("contact"))
 
     return render_template("contact.html", form=email_form, current_user=current_user)
 
