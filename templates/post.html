@@ -48,7 +48,9 @@
                 </div>
                 <div class="commentText">
                   <p>{{ comment.text|safe }}</p>
-                  <span class="date sub-text">{{ comment.author.name }}</span>
+                  <span class="date sub-text">
+                    <p>{{ comment.author.name }}</p>
+                  </span>
                 </div>
               </li>
             </ul>

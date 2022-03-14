@@ -8,7 +8,7 @@ from sqlalchemy import ForeignKey
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
+from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
 from forms import RegisterForm, LoginForm, CreatePostForm, CommentForm, EmailForm
 from flask_gravatar import Gravatar
 import os
@@ -271,8 +271,13 @@ def delete_post(post_id):
     return redirect(url_for('get_all_posts'))
 
 
-# TODO: Add user pages where comments and posts will be seen.
-# TODO: Add a possibility for every user to create, edit and delete own posts.
+@app.route("/user-info")
+@login_required
+def user_info():
+    return render_template("user_info.html", current_user=current_user)
+
+
+# TODO: user info editing, comments editing and deleting.
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
