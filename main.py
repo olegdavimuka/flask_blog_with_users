@@ -99,7 +99,7 @@ db.create_all()
 
 
 def send_email(name, email, phone, message):
-    with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
+    with smtplib.SMTP("smtp.gmail.com") as connection:
         connection.starttls()
         connection.login(FROM_EMAIL, FROM_EMAIL_PASSWORD)
         connection.sendmail(
