@@ -68,7 +68,7 @@
 
           {% if current_user.is_authenticated: %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('user_info') }}">Profile</a>
+            <a class="nav-link" href="{{ url_for('user_info', user_id=current_user.id) }}">Profile</a>
           </li>
           {% endif %}
 

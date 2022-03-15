@@ -43,15 +43,25 @@
             {% for comment in post.comments %}
             <ul class="commentList">
               <li>
+
                 <div class="commenterImage">
                   <img src="{{ comment.author.email|gravatar }}"/>
                 </div>
+
                 <div class="commentText">
                   <p>{{ comment.text|safe }}</p>
+
                   <span class="date sub-text">
-                    <p>{{ comment.author.name }}</p>
+                    {{ comment.author.name }}
+                    {% if current_user.id == 1: %}
+                      <a href="{{url_for('delete_comment', comment_id=comment.id, post_id=comment.post_id) }}">Delete</a>
+                    {% elif current_user.id == comment.author_id: %}
+                      <a href="{{url_for('delete_comment', comment_id=comment.id, post_id=comment.post_id) }}">Delete</a>
+                    {% endif %}
                   </span>
+
                 </div>
+
               </li>
             </ul>
             {% endfor %}

@@ -1,4 +1,6 @@
 {% extends 'bootstrap/base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
 
 {% block content %}
 {% include "header.html" %}
@@ -23,15 +25,33 @@
       <div class="col-lg-8 col-md-10 mx-auto">
 
         <h1>About you</h1>
-        <p>Name: {{current_user.name}} </p>
-        <p>Email: {{current_user.email}} </p>
+
+        {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              {% for message in messages %}
+                <p class="alert alert-primary">{{ message }}</p>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+        <br>
 
         <h1>Your comments</h1>
-        {% for comment in current_user.comments: %}
-          <p>Comment: {{ comment.text|safe }}</p>
-          <a href="{{ url_for('show_post', post_id=comment.parent_post.id) }}">Post: {{ comment.parent_post.title }}</a>
+        <ul class="list-group list-group-flush">
+          {% for comment in current_user.comments: %}
+          <li class="m-0 p-0 list-group-item list-group-item-action">
+            <div class="alert alert-primary" role="alert">
+                {{ comment.text|safe }}
+            </div>
+            <div class="alert alert-info" role="alert">
+              Post: <a class="alert_link" href="{{ url_for('show_post', post_id=comment.parent_post.id) }}">{{ comment.parent_post.title }}</a>
+            </div>
+          </li>
           <hr>
-        {% endfor %}
+          {% endfor %}
+        </ul>
+
 
       </div>
     </div>

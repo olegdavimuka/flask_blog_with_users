@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 from functools import wraps
 from io import StringIO
 
-from flask import Flask, render_template, redirect, url_for, flash, abort
+from flask import Flask, render_template, redirect, url_for, flash, abort, request
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
@@ -16,7 +16,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from forms import RegisterForm, LoginForm, CreatePostForm, CommentForm, EmailForm
+from forms import RegisterForm, LoginForm, CreatePostForm, CommentForm, EmailForm, UserInfoForm
 
 FROM_EMAIL = os.environ.get("FROM_EMAIL")
 FROM_EMAIL_PASSWORD = os.environ.get("FROM_EMAIL_PASSWORD")
@@ -284,13 +284,40 @@ def delete_post(post_id):
     return redirect(url_for('get_all_posts'))
 
 
-@app.route("/user-info")
+@app.route("/user-info", methods=["GET", "POST"])
 @login_required
 def user_info():
-    return render_template("user_info.html", current_user=current_user)
+    user_info_form = UserInfoForm(
+        name=current_user.name,
+        email=current_user.email
+    )
+
+    if user_info_form.validate_on_submit():
+        if not check_password_hash(current_user.password, user_info_form.password.data):
+            flash('Password incorrect, please try again.')
+            return redirect(url_for("user_info"))
+            # TODO: How to pass variable via redirect?
+
+        if User.query.filter_by(email=user_info_form.email.data).first():
+            flash("This email already taken, try another.")
+            return redirect(url_for("user_info"))
+
+        current_user.name = user_info_form.name.data
+        current_user.email = user_info_form.email.data
+        db.session.commit()
+        flash('Information successfully changed!')
+
+    return render_template("user_info.html", form=user_info_form, current_user=current_user)
 
 
-# TODO: user info editing, comments editing and deleting.
+@app.route("/<int:post_id>/delete_comment/<int:comment_id>")
+@login_required
+def delete_comment(comment_id, post_id):
+    comment_to_delete = Comment.query.get(comment_id)
+    db.session.delete(comment_to_delete)
+    db.session.commit()
+    return redirect(url_for('show_post', post_id=post_id))
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

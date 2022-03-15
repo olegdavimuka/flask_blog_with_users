@@ -46,3 +46,10 @@ class EmailForm(FlaskForm):
             phonenumbers.parse(phone.data)
         except NumberParseException:
             raise ValidationError('Invalid phone number.')
+
+
+class UserInfoForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    email = EmailField("Email", validators=[DataRequired(), Email()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    submit = SubmitField("Edit")
