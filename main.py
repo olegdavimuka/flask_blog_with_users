@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 from functools import wraps
 from io import StringIO
 
-from flask import Flask, render_template, redirect, url_for, flash, abort, request
+from flask import Flask, render_template, redirect, url_for, flash, abort
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
