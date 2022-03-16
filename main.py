@@ -206,6 +206,7 @@ def show_post(post_id):
         )
         db.session.add(new_comment)
         db.session.commit()
+        form.comment.data = ""
 
     return render_template("post.html", post=requested_post, form=form, current_user=current_user)
 
@@ -279,6 +280,11 @@ def edit_post(post_id):
 @admin_only
 def delete_post(post_id):
     post_to_delete = BlogPost.query.get(post_id)
+
+    comments_to_delete = [Comment.query.get(comment.id) for comment in post_to_delete.comments]
+    for comment in comments_to_delete:
+        db.session.delete(comment)
+
     db.session.delete(post_to_delete)
     db.session.commit()
     return redirect(url_for('get_all_posts'))

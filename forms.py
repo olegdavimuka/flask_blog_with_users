@@ -34,18 +34,10 @@ class CommentForm(FlaskForm):
 
 class EmailForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
-    email = EmailField("Email Address", validators=[DataRequired(), Email()])
-    phone = StringField("Phone Number", validators=[DataRequired()])
+    email = EmailField("Email Address", validators=[DataRequired(), Email()], description="email@example.com")
+    phone = StringField("Phone Number", validators=[DataRequired()])  # TODO: Phone Validation
     message = StringField("Message", validators=[DataRequired()])
     submit = SubmitField("Send")
-
-    def validate_phone(self, phone):
-        if len(phone.data) > 15:
-            raise ValidationError('Too long.')
-        try:
-            phonenumbers.parse(phone.data)
-        except NumberParseException:
-            raise ValidationError('Invalid phone number.')
 
 
 class UserInfoForm(FlaskForm):
