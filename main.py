@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 from functools import wraps
 from io import StringIO
 
-from flask import Flask, render_template, redirect, url_for, flash, abort
+from flask import Flask, render_template, redirect, url_for, flash, abort, send_from_directory
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
@@ -214,6 +214,17 @@ def show_post(post_id):
 @app.route("/about")
 def about():
     return render_template("about.html", current_user=current_user)
+
+
+@app.route("/cv")
+def cv():
+    return render_template("cv.html", current_user=current_user)
+
+
+@app.route('/download')
+@login_required
+def download():
+    return send_from_directory(directory='static', path="files/cv.pdf")
 
 
 @app.route("/contact", methods=["GET", "POST"])

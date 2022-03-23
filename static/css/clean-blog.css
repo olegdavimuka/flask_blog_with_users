@@ -488,3 +488,21 @@ footer .copyright {
   font-size: 16px;
   padding: 25px 35px;
 }
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu {
+    margin-top: 0;
+}
+
+.carousel-item:after {
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+  background:rgba(0,0,0,0.4);
+}

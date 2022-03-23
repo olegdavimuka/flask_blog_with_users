@@ -58,8 +58,14 @@
           </li>
           {% endif %}
     
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('about') }}">About Me</a>
+          <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" id="dropdownMenuButton">
+                About Me
+              </a>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="{{ url_for('about') }}">Summary</a>
+                <a class="dropdown-item" href="{{ url_for('cv') }}">CV</a>
+              </div>
           </li>
 
           <li class="nav-item">
